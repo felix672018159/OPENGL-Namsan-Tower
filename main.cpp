@@ -294,37 +294,62 @@ void kubusku(void){
 
 void towern(void){
 	glPushMatrix();
-
-		tabung(1.5f,1.5f,50.0f,0.0f,0.0f,0.0f,w[1],w[0],w[1]);
-		tabung(7.0f,7.0f,2.0f,0.0f,-2.0f,0.0f,w[1],w[0],w[1]);
-		tabung(7.0f,7.0f,4.0f,0.0f,-6.0f,0.0f,w[1],w[2],w[1]);
-		tabung(7.0f,7.0f,2.0f,0.0f,-8.0f,0.0f,w[1],w[0],w[1]);
-		balokw(28.0f,2.0f,28.0f,0.0f,-10.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
-		//balokw(28.0f,10.0f,28.0f,0.0f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
-		balokw(7.0f,10.0f,28.0f,10.5f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakang kanan
-		balokw(7.0f,10.0f,28.0f,-10.5f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakang kiri
-		balokw(14.0f,10.0f,28.0f,0.0f,-20.0f,0.0f,w[2],w[2],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakan kaca
-		balokw(28.0f,10.0f,7.0f,0.0f,-20.0f,10.5f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,0,0,1,1);//kiri kanan samping kanan
-		balokw(28.0f,10.0f,7.0f,0.0f,-20.0f,-10.5f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,0,0,1,1);//kiri kanan samping kiri
-		balokw(28.0f,10.0f,14.0f,0.0f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[2],w[2],0,0,0,0,1,1);//kiri kanan kaca
-		balokw(28.0f,2.0f,28.0f,0.0f,-22.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
-		balokw(35.0f,1.0f,35.0f,0.0f,-23.0f,0.0f,w[0],w[0],w[1],w[1],w[5],w[5],1,1,1,1,1,1);
-		balok(100.0f,1.0f,100.0f,0.0f,-24.0f,0.0f,w[7],w[7],w[6],w[6],w[8],w[8]);//rumput
-		balok(100.0f,2.0f,100.0f,0.0f,-26.0f,0.0f,w[10],w[10],w[9],w[9],w[10],w[10]);//tanah lapis 1
-		balok(100.0f,4.0f,100.0f,0.0f,-30.0f,0.0f,w[11],w[11],w[12],w[12],w[11],w[11]);//tanah lapis 2
-		balok(100.0f,4.0f,100.0f,0.0f,-34.0f,0.0f,w[13],w[13],w[14],w[14],w[13],w[13]);//tanah lapis 3
+		glTranslatef(0.0f,-50.0f,0.0f);
+		glPushMatrix();
+			tabung(0.5f,0.5f,4.0f,0.0f,145.0f,0.0f,w[0],w[0],w[0]);
+			//
+			tabung(2.0f,2.0f,1.0f,0.0f,144.0f,0.0f,w[1],w[0],w[1]);
+			tabung(1.0f,1.0f,6.0f,0.0f,139.0f,0.0f,w[0],w[0],w[0]);
+			tabung(1.0f,1.0f,3.0f,0.0f,136.0f,0.0f,w[0],w[3],w[0]);
+			tabung(1.0f,1.0f,4.0f,0.0f,132.0f,0.0f,w[0],w[0],w[0]);
+			tabung(1.0f,1.0f,3.0f,0.0f,129.0f,0.0f,w[0],w[3],w[0]);
+			//
+			tabung(2.5f,2.5f,1.0f,0.0f,128.0f,0.0f,w[1],w[0],w[1]);
+			tabung(1.5f,1.5f,12.0f,0.0f,116.0f,0.0f,w[0],w[0],w[0]);
+			tabung(1.5f,1.5f,3.0f,0.0f,113.0f,0.0f,w[0],w[3],w[0]);
+			//
+			tabung(3.5f,3.5f,1.0f,0.0f,112.0f,0.0f,w[1],w[0],w[1]);
+			tabung(2.5f,2.5f,12.0f,0.0f,100.0f,0.0f,w[0],w[0],w[0]);
+			tabung(2.5f,2.5f,3.0f,0.0f,97.0f,0.0f,w[0],w[3],w[0]);
+			//
+			tabung(3.0f,3.0f,3.0f,0.0f,94.0f,0.0f,w[0],w[0],w[0]);
+			tabung(6.0f,6.0f,5.0f,0.0f,89.0f,0.0f,w[0],w[0],w[0]);
+			tabung(7.0f,7.0f,1.0f,0.0f,88.0f,0.0f,w[0],w[4],w[0]);
+			tabung(7.0f,7.0f,3.0f,0.0f,85.0f,0.0f,w[1],w[2],w[1]);
+			tabung(7.0f,7.0f,1.0f,0.0f,84.0f,0.0f,w[0],w[4],w[0]);
+			tabung(7.0f,7.0f,3.0f,0.0f,81.0f,0.0f,w[1],w[2],w[1]);
+			tabung(7.0f,7.0f,3.0f,0.0f,78.0f,0.0f,w[1],w[4],w[1]);
+			//
+			tabung(10.0f,10.0f,1.0f,0.0f,77.0f,0.0f,w[1],w[4],w[1]);
+			tabung(10.0f,10.0f,3.0f,0.0f,74.0f,0.0f,w[1],w[2],w[1]);//
+			tabung(10.0f,10.0f,1.0f,0.0f,73.0f,0.0f,w[1],w[4],w[1]);
+			tabung(10.0f,10.0f,3.0f,0.0f,70.0f,0.0f,w[1],w[2],w[1]);//
+			tabung(10.0f,10.0f,1.0f,0.0f,69.0f,0.0f,w[1],w[4],w[1]);
+			tabung(10.0f,10.0f,3.0f,0.0f,66.0f,0.0f,w[1],w[2],w[1]);
+			tabung(10.0f,10.0f,1.0f,0.0f,65.0f,0.0f,w[1],w[4],w[1]);
+			//
+			tabung(3.0f,3.0f,70.0f,0.0f,-5.0f,0.0f,w[1],w[0],w[1]);
+			tabung(7.0f,7.0f,2.0f,0.0f,-7.0f,0.0f,w[1],w[0],w[1]);
+			tabung(7.0f,7.0f,4.0f,0.0f,-11.0f,0.0f,w[1],w[2],w[1]);
+			tabung(7.0f,7.0f,2.0f,0.0f,-13.0f,0.0f,w[1],w[0],w[1]);
+			balokw(28.0f,2.0f,28.0f,0.0f,-15.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
+			//balokw(28.0f,10.0f,28.0f,0.0f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
+			balokw(7.0f,5.0f,28.0f,10.5f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakang kanan
+			balokw(7.0f,5.0f,28.0f,-10.5f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakang kiri
+			balokw(14.0f,5.0f,28.0f,0.0f,-20.0f,0.0f,w[2],w[2],w[4],w[4],w[5],w[5],0,0,1,1,0,0);//depan belakan kaca
+			balokw(28.0f,5.0f,7.0f,0.0f,-20.0f,10.5f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,0,0,1,1);//kiri kanan samping kanan
+			balokw(28.0f,5.0f,7.0f,0.0f,-20.0f,-10.5f,w[0],w[0],w[4],w[4],w[5],w[5],0,0,0,0,1,1);//kiri kanan samping kiri
+			balokw(28.0f,5.0f,14.0f,0.0f,-20.0f,0.0f,w[0],w[0],w[4],w[4],w[2],w[2],0,0,0,0,1,1);//kiri kanan kaca
+			balokw(28.0f,2.0f,28.0f,0.0f,-22.0f,0.0f,w[0],w[0],w[4],w[4],w[5],w[5],0,1,1,1,1,1);
+			balokw(35.0f,1.0f,35.0f,0.0f,-23.0f,0.0f,w[0],w[0],w[1],w[1],w[5],w[5],1,1,1,1,1,1);
+			balok(100.0f,1.0f,100.0f,0.0f,-24.0f,0.0f,w[7],w[7],w[6],w[6],w[8],w[8]);//rumput
+			balok(100.0f,2.0f,100.0f,0.0f,-26.0f,0.0f,w[10],w[10],w[9],w[9],w[10],w[10]);//tanah lapis 1
+			balok(100.0f,4.0f,100.0f,0.0f,-30.0f,0.0f,w[11],w[11],w[12],w[12],w[11],w[11]);//tanah lapis 2
+			balok(100.0f,4.0f,100.0f,0.0f,-34.0f,0.0f,w[13],w[13],w[14],w[14],w[13],w[13]);//tanah lapis 3
+		glPopMatrix();
 	glPopMatrix();
 };
-void tampilkan(void){
-	if (conf.is_depth){
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}else{
-		glClear(GL_COLOR_BUFFER_BIT);
-	};
-	glPushMatrix();
-		glScalef(0.5f,0.5f,0.5f);
-		towern();
-	
+void titiktengah(void){
 		glPushMatrix();
 			glBegin(GL_POINTS);
 				glColor4f(cla(255),	cla(0),cla(0)	,0.5);
@@ -343,6 +368,18 @@ void tampilkan(void){
 			glVertex3f(-1.0	,0.0,	1.0);
 			glEnd();
 		glPopMatrix();
+};
+void tampilkan(void){
+	if (conf.is_depth){
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}else{
+		glClear(GL_COLOR_BUFFER_BIT);
+	};
+	glPushMatrix();
+		glScalef(0.5f,0.5f,0.5f);
+		towern();
+		titiktengah();
+		
 	glPopMatrix();
 	glutSwapBuffers();
 };
