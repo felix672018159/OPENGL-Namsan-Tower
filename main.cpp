@@ -228,10 +228,28 @@ void balokw(float panjang, float tinggi, float lebar,float x,float y,float z,flo
 	glPopMatrix();
 };
 void inisialisasi(void){
-	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glClearColor(0.5, 0.5, 0.5, 1.0);
 	glMatrixMode(GL_PROJECTION);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
+
+	glLightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, GL_TRUE);
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+
+	// intensitas dan warna
+	GLfloat qaAmbientLight[]	= {0.5, 0.5, 0.5, 1.0};
+	GLfloat qaDiffuseLight[]	= {1.0, 1.0, 1.0, 1.0};
+	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
+	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
+
+	// posisi pencahayaan
+	GLfloat qaLightPosition[]	= {0.9, 0.9, 0.9, 0.9};
+	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
+
 	conf.is_depth = 1;
 	conf.rotasilokat[0]=0.0f;
 	conf.rotasilokat[1]=0.0f;
@@ -459,13 +477,7 @@ void gerakmouse(int x, int y){
 			lokasixyz[0] += 1.0f;
 		};*/
 		
-		if(fy<y){
-			glRotatef(3.0f,1.0f,0.0f,0.0f);
-			lokasixyz[1] += 3.0f;
-		}else if(fy>y){
-			glRotatef(-3.0f,1.0f,0.0f,0.0f);
-			lokasixyz[1] -= 3.0f;
-		};
+		//;
 
 		if(fx<x){
 			glRotatef(3.0f,0.0f,1.0f,0.0f);
@@ -473,6 +485,12 @@ void gerakmouse(int x, int y){
 		}else if(fx>x){
 			glRotatef(-3.0f,0.0f,1.0f,0.0f);
 			lokasixyz[0] -= 3.0f;
+		}; if(fy<y){
+			glRotatef(3.0f,1.0f,0.0f,0.0f);
+			lokasixyz[1] += 3.0f;
+		}else if(fy>y){
+			glRotatef(-3.0f,1.0f,0.0f,0.0f);
+			lokasixyz[1] -= 3.0f;
 		};
 		cout<<"pos x = "<< lokasixyz[0]<<"; pos y = "<<lokasixyz[1]<<endl;
 		tampilkan();
