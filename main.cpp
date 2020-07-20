@@ -239,15 +239,23 @@ void inisialisasi(void){
 	glEnable(GL_LIGHT0);
 
 	// intensitas dan warna
+	GLfloat qaAmbientLight[]	= {0.2, 0.2, 0.2, 0.5};
+	GLfloat qaDiffuseLight[]	= {0.8, 0.8, 0.8, 1.0};
+	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
+	/*set kedua
+	GLfloat qaAmbientLight[]	= {0.2, 0.2, 0.2, 0.5};
+	GLfloat qaDiffuseLight[]	= {0.8, 0.8, 0.8, 1.0};
+	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaAmbientLight[]	= {0.5, 0.5, 0.5, 1.0};
 	GLfloat qaDiffuseLight[]	= {1.0, 1.0, 1.0, 1.0};
 	GLfloat qaSpecularLight[]	= {1.0, 1.0, 1.0, 1.0};
+	*/
 	glLightfv(GL_LIGHT0, GL_AMBIENT, qaAmbientLight);
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, qaDiffuseLight);
 	glLightfv(GL_LIGHT0, GL_SPECULAR, qaSpecularLight);
 
 	// posisi pencahayaan
-	GLfloat qaLightPosition[]	= {0.9, 0.9, 0.9, 0.9};
+	GLfloat qaLightPosition[]	= {0.0, 0.0, -0.9, 0.1};
 	glLightfv(GL_LIGHT0, GL_POSITION, qaLightPosition);
 
 	conf.is_depth = 1;
