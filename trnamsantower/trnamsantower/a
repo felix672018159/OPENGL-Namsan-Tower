@@ -1,0 +1,1655 @@
+
+/*
+fungsi keyboard yang merupakan kontroler case berada di
+void keyboard(unsigned char key, int x,int y) [baris ke 1206]
+*/
+
+#include <iostream>
+#include <windows.h>
+#include <gl/glut.h>
+
+using namespace std;
+
+int is_depth;
+int x,y;
+float xrot = 0;
+float yrot = 0;
+float xdiff = 0;
+float ydiff = 0;
+bool mousedown =false;
+
+int tpagar[4] = {1,1,1,1};// depan kanan belakang kiri
+int tdinding[4] = {1,1,1,1}; //depan kanan belakang kiri
+int pintu = 1;
+void init(void){
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glMatrixMode(GL_PROJECTION);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_LESS);
+	is_depth=1;
+	glMatrixMode(GL_MODELVIEW);
+	glPointSize(9.0);
+	glLineWidth(6.0f);
+};
+
+float cl(int warna){
+	float hasil = (float) warna/255;
+	return hasil;
+};
+
+void segitiga(float akiri, float akanan, float tinggi , float lebar,float x,float y, float z,float d[4],float b[4],float ki[4], float ka[4],float ba[4]){
+
+	glBegin(GL_POLYGON); //depan
+	glColor4f(d[0],d[1],d[2],d[3]);
+	glVertex3f(0+x     ,0+y     ,0+z);
+	glVertex3f(akanan+x,0+y     ,0+z);
+	glVertex3f(0+x     ,tinggi+y,0+z);
+	glVertex3f(-akiri+x ,0+y     ,0+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //belakang
+	glColor4f(b[0],b[1],b[2],b[3]);
+	glVertex3f(0+x     ,0+y     ,-lebar+z);
+	glVertex3f(akanan+x,0+y     ,-lebar+z);
+	glVertex3f(0+x     ,tinggi+y,-lebar+z);
+	glVertex3f(-akiri+x ,0+y     ,-lebar+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //kiri
+	glColor4f(ki[0],ki[1],ki[2],ki[3]);
+	glVertex3f(-akiri+x,0+y      ,0+z);
+	glVertex3f(-akiri+x,0+y      ,-lebar+z);
+	glVertex3f(0+x    ,tinggi+y ,-lebar+z);
+	glVertex3f(0+x    ,tinggi+y ,0+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //kanan
+	glColor4f(ka[0],ka[1],ka[2],ka[3]);
+	glVertex3f(akanan+x,0+y     ,0+z);
+	glVertex3f(akanan+x,0+y     ,-lebar+z);
+	glVertex3f(0+x    ,tinggi+y ,-lebar+z);
+	glVertex3f(0+x    ,tinggi+y ,0+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); // bawah
+	glColor4f(ba[0],ba[1],ba[2],ba[3]);
+	glVertex3f(0+x     ,0+y  ,0+z);
+	glVertex3f(akanan+x,0+y  ,0+z);
+	glVertex3f(akanan+x,0+y  ,-lebar+z);
+	glVertex3f(0+x     ,0+y  ,-lebar+z);
+
+	glVertex3f(akiri+x ,0+y  ,-lebar+z);
+	glVertex3f(akiri+x ,0+y  ,0+z);
+	glEnd();
+
+};
+
+void balok(float panjang, float tinggi , float lebar,float x,float y, float z,float d[4],float b[4],float ki[4], float ka[4],float at[4],float ba[4]){
+	
+
+	glBegin(GL_POLYGON); //depan
+	glColor4f(d[0],d[1],d[2],d[3]);
+	glVertex3f(0+x      ,0+y     ,0+z);
+	glVertex3f(0+x      ,tinggi+y,0+z);
+	glVertex3f(panjang+x,tinggi+y,0+z);
+	glVertex3f(panjang+x,0+y     ,0+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //belakang
+	glColor4f(b[0],b[1],b[2],b[3]);
+	glVertex3f(0+x      ,0+y      ,-lebar+z);
+	glVertex3f(0+x      ,tinggi+y ,-lebar+z);
+	glVertex3f(panjang+x,tinggi+y ,-lebar+z);
+	glVertex3f(panjang+x,0+y      ,-lebar+z);
+	glEnd();
+	
+
+	glBegin(GL_POLYGON); //kiri
+	glColor4f(ki[0],ki[1],ki[2],ki[3]);
+	glVertex3f(0+x,0+y     ,0+z      );
+	glVertex3f(0+x,tinggi+y,0+z      );
+	glVertex3f(0+x,tinggi+y,-lebar+z );
+	glVertex3f(0+x,0+y      ,-lebar+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //kanan
+	glColor4f(ka[0],ka[1],ka[2],ka[3]);
+	glVertex3f(panjang+x,0+y     ,0+z      );
+	glVertex3f(panjang+x,tinggi+y,0+z      );
+	glVertex3f(panjang+x,tinggi+y,-lebar+z );
+	glVertex3f(panjang+x,0+y      ,-lebar+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //atas
+	glColor4f(at[0],at[1],at[2],at[3]);
+	glVertex3f(0+x      ,tinggi+y ,0+z);
+	glVertex3f(0+x      ,tinggi+y ,-lebar+z);
+	glVertex3f(panjang+x,tinggi+y ,-lebar+z);
+	glVertex3f(panjang+x,tinggi+y ,0+z);
+	glEnd();
+
+	glBegin(GL_POLYGON); //bawah
+	glColor4f(ba[0],ba[1],ba[2],ba[3]);
+	glVertex3f(0+x      ,0+y ,0+z);
+	glVertex3f(0+x      ,0+y ,-lebar+z);
+	glVertex3f(panjang+x,0+y ,-lebar+z);
+	glVertex3f(panjang+x,0+y ,0+z);
+	glEnd();
+};
+
+
+
+float cd[100][10][4]		=   { //cd = penentu warna sebuah objek 
+										{ //0 warna kustom
+											{cl(255),cl(54),cl(23),0.3f}, //depan
+											{cl(0),cl(255),cl(0),0.5f}, //belakang
+											{cl(0),cl(0),cl(255),0.5f}, //kiri
+											{cl(255),cl(0),cl(255),0.5f}, //kanan
+											{cl(255),cl(255),cl(0),0.5f}, // atas
+											{cl(0),cl(255),cl(255),0.5f}  //bawah
+										},
+										{//1 warna tanah
+											{cl(104),cl(65),cl(50),1.0f}, //depan
+											{cl(104),cl(65),cl(50),1.0f}, //belakang
+											{cl(90),cl(55),cl(41),1.0f}, //kiri
+											{cl(90),cl(55),cl(41),1.0f}, //kanan
+											{cl(65),cl(152),cl(10),1.0f}, // atas
+											{cl(74),cl(41),cl(28),1.0f}  //bawah
+										},
+										{ //2 warna dinding depan
+											{cl(255),cl(54),cl(23),1.0f}, //depan
+											{cl(0),cl(255),cl(0),1.0f}, //belakang
+											{cl(0),cl(0),cl(255),1.0f}, //kiri
+											{cl(255),cl(0),cl(255),1.0}, //kanan
+											{cl(255),cl(255),cl(0),1.0f}, // atas
+											{cl(0),cl(255),cl(255),1.0f}  //bawah
+										},
+										{ //3 warna pagar
+											{cl(33),cl(129),cl(203),1.0f}, //depan
+											{cl(33),cl(129),cl(203),1.0f}, //belakang
+											{cl(11),cl(104),cl(181),1.0f}, //kiri
+											{cl(11),cl(104),cl(181),1.0f}, //kanan
+											{cl(6),cl(76),cl(134),1.0f}, // atas
+											{cl(6),cl(76),cl(134),1.0f}  //bawah
+										},
+										{ //4 warna alas rumah
+											{cl(65),cl(63),cl(66),1.0f}, //depan
+											{cl(255),cl(255),cl(255),1.0f}, //belakang
+											{cl(255),cl(255),cl(255),1.0f}, //kiri
+											{cl(255),cl(255),cl(255),1.0f}, //kanan
+											{cl(255),cl(255),cl(255),1.0f}, // atas
+											{cl(255),cl(255),cl(255),1.0f}  //bawah
+										},
+										{ //5 warna kustom kuning oranye
+											{cl(255),cl(201),cl(14),1.0f},
+											{cl(0),cl(0),cl(255),0.3f}, //warna jendela
+											{cl(131),cl(89),cl(149),1.0f},
+											{cl(238),cl(125),cl(0),1.0f},//warna pintu 5 3
+											{cl(0),cl(0),cl(0),1.0f},
+											{cl(0),cl(0),cl(0),1.0f},
+										}
+									};
+
+
+void tanah(void){
+	glPushMatrix();
+		balok(80.0f,10.0f,100.0f,-40.0f,-25.0f,50.0f,	cd[1][0], //depan
+														cd[1][1], //belakang
+														cd[1][2], //kiri
+														cd[1][3], //kanan
+														cd[1][4], //atas
+														cd[1][5]); //bawah
+	glPopMatrix();
+};
+
+void pagar(void){
+	int j = 40;
+	int k = 50;
+	int i;
+	if(tpagar[0]==1){
+	glPushMatrix();       //pagar depan
+	
+	for (i=0;i<j;i++){   
+		if((15<=i)&&(i<25)){
+			continue;
+		};
+	
+		balok(1.5f,10.0f,1.5f,-40.0f+((float)i*2.0f),-15.0f,50.0f,	    cd[3][0], //depan
+														cd[3][1], //belakang
+														cd[3][2], //kiri
+														cd[3][3], //kanan
+														cd[3][4], //atas
+														cd[3][5]); //bawah	
+		
+		segitiga(0.75f, 0.75f, 3.0f, 1.5f, -39.25f+((float)i*2.0f), -5.0f,50.0f,	    cd[3][0], //depan
+																						cd[3][1], //belakang
+																						cd[3][2], //kiri
+																						cd[3][3], //kanan
+																						cd[3][4]); //bawah
+	
+	};
+	glPopMatrix();
+	};
+	
+	if(tpagar[2]==1){
+	glPushMatrix(); //pagar belakang
+	for (i=0;i<j;i++){  
+		
+		balok(1.5f,20.0f,1.5f,-40.0f+((float)i*2.0f),-15.0f,-48.5f,	    cd[3][0], //depan
+														cd[3][1], //belakang
+														cd[3][2], //kiri
+														cd[3][3], //kanan
+														cd[3][4], //atas
+														cd[3][5]); //bawah	
+		
+		segitiga(0.75f, 0.75f, 3.0f, 1.5f, -39.25f+((float)i*2.0f), 5.0f,-48.5f,	    cd[3][0], //depan
+																						cd[3][1], //belakang
+																						cd[3][2], //kiri
+																						cd[3][3], //kanan
+																						cd[3][4]); //bawah
+
+	};
+	glPopMatrix();
+	};
+
+	if(tpagar[3]==1){
+	glPushMatrix(); //pagar kiri
+	
+	for (i=0;i<k;i++){
+		float bb = (10.0f / 50.0f)*i;
+		balok(1.5f,10.0f+bb,1.5f,-40.0f,-15.0f,50.0f-((float)i*2.0f),	    cd[3][0], //depan
+														cd[3][1], //belakang
+														cd[3][2], //kiri
+														cd[3][3], //kanan
+														cd[3][4], //atas
+														cd[3][5]); //bawah	
+		glPushMatrix();
+			glTranslatef(-88.5f,0.0f,10.0f);
+			glRotatef(90.0f,0.0f,1.0f,0.0f);
+			segitiga(0.75f, 0.75f, 3.0f, 1.5f, -39.25f+((float)i*2.0f), -5.0f+bb,50.0f,	    cd[3][2], //depan
+																							cd[3][3], //belakang
+																							cd[3][0], //kiri
+																							cd[3][1], //kanan
+																							cd[3][4]); //bawah
+		glPopMatrix();
+	};
+	glPopMatrix();
+	};
+
+	if(tpagar[1]==1){
+	glPushMatrix(); //pagar kanan
+	
+	for (i=0;i<k;i++){
+		float bb = (10.0f / 50.0f)*i;
+		balok(1.5f,10.0f+bb,1.5f,38.5f,-15.0f,50.0f-((float)i*2.0f),	    cd[3][0], //depan
+														cd[3][1], //belakang
+														cd[3][2], //kiri
+														cd[3][3], //kanan
+														cd[3][4], //atas
+														cd[3][5]); //bawah	
+		glPushMatrix();
+			glTranslatef(-10.0f,0.0f,10.0f);
+			glRotatef(90.0f,0.0f,1.0f,0.0f);
+			segitiga(0.75f, 0.75f, 3.0f, 1.5f, -39.25f+((float)i*2.0f), -5.0f+bb,50.0f,	    cd[3][2], //depan
+																							cd[3][3], //belakang
+																							cd[3][0], //kiri
+																							cd[3][1], //kanan
+																							cd[3][4]); //bawah
+		glPopMatrix();
+	};
+	glPopMatrix();
+	};
+};
+void kacasegitiga(void){
+	glPushMatrix();
+		segitiga(25.0f,25.0f,20.0f,1.5f,0.0f,35.0f,15.0f,cd[0][0], //depan
+															cd[0][1], //belakang
+															cd[0][2], //kiri
+															cd[0][3], //kanan
+															cd[0][4]); //bawah
+		segitiga(25.0f,25.0f,20.0f,1.5f,0.0f,35.0f,-33.5f,	cd[0][0], //depan
+															cd[0][1], //belakang
+															cd[0][2], //kiri
+															cd[0][3], //kanan
+															cd[0][4]); //bawah
+	glPopMatrix();
+}
+
+void jendelarumah(void){
+	if(tdinding[0]==1){
+	glPushMatrix(); // jendela rumah depan kiri
+		balok(7.0f,10.0f,1.5f,-17.0f,-15.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+		balok(7.0f,5.0f,1.5f,-17.0f,5.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(7.0f,10.0f,1.5f,-17.0f,-5.0f,15.0f,	    cd[5][1], //depan   //jendela depan, kiri bawah
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(7.0f,10.0f,1.5f,-17.0f,10.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(7.0f,5.0f,1.5f,-17.0f,30.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(7.0f,10.0f,0.5f,-17.0f,20.0f,14.5f,	    cd[5][1], //depan   //jendela depan, kiri atas
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+		
+		balok(1.0f,10.0f,1.5f,-14.0f,20.0f,15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(7.0f,1.0f,1.5f,-17.0f,24.5f,15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+		glPushMatrix(); // jendela rumah depan kanan
+			glTranslatef(27.0f,0.0f,0.0f);
+			balok(7.0f,10.0f,1.5f,-17.0f,-15.0f,15.0f,	    cd[2][0], //depan
+															cd[2][1], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+			balok(7.0f,5.0f,1.5f,-17.0f,5.0f,15.0f,	    cd[2][0], //depan
+															cd[2][1], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+
+			balok(7.0f,10.0f,1.5f,-17.0f,-5.0f,15.0f,	    cd[5][1], //depan   //jendela depan, kiri bawah
+															cd[5][1], //belakang
+															cd[5][1], //kiri
+															cd[5][1], //kanan
+															cd[5][1], //atas
+															cd[5][1]); //bawah
+
+			balok(7.0f,10.0f,1.5f,-17.0f,10.0f,15.0f,	    cd[2][0], //depan
+															cd[2][1], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+
+			balok(7.0f,5.0f,1.5f,-17.0f,30.0f,15.0f,	    cd[2][0], //depan
+															cd[2][1], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+
+			balok(7.0f,10.0f,0.5f,-17.0f,20.0f,14.5f,	    cd[5][1], //depan   //jendela depan, kiri atas
+															cd[5][1], //belakang
+															cd[5][1], //kiri
+															cd[5][1], //kanan
+															cd[5][1], //atas
+															cd[5][1]); //bawah
+		
+			balok(1.0f,10.0f,1.5f,-14.0f,20.0f,15.0f,	    cd[1][4], //depan
+															cd[1][4], //belakang
+															cd[1][4], //kiri
+															cd[1][4], //kanan
+															cd[1][4], //atas
+															cd[1][4]); //bawah
+
+			balok(7.0f,1.0f,1.5f,-17.0f,24.5f,15.0f,	    cd[1][4], //depan
+															cd[1][4], //belakang
+															cd[1][4], //kiri
+															cd[1][4], //kanan
+															cd[1][4], //atas
+															cd[1][4]); //bawah
+
+		glPopMatrix();
+	glPopMatrix();
+	};
+
+	if(tdinding[2]==1){
+	glPushMatrix(); //jendela belakang
+		balok(47.0f,10.0f,1.5f,-23.5f,-5.0f,-33.5f,	cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(47.0f,10.0f,1.5f,-23.5f,20.0f,-33.5f,	cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+	glPopMatrix();
+	};
+
+	if(tdinding[3]==1){
+	/////////////////////////////////////////////////////////////////////////////////////////jendela samping kiri
+	glPushMatrix();
+		balok(1.5f,10.0f,1.0f,-25.0f,20.0f,0.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,-5.0f,0.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,20.0f,-19.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,-5.0f,-19.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+		///////////////////////////////////////////
+		balok(1.5f,1.0f,10.0f,-25.0f,24.5f,5.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,-0.5f,5.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,24.5f,-15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,-0.5f,-15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+		///////////////////////////////////////////////////////////////////////
+		balok(0.5f,10.0f,10.0f,-24.5f,-5.0f,-15.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,-5.0f,5.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,20.0f,-15.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,20.0f,5.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+	glPopMatrix();
+	};
+
+	if(tdinding[1]==1){
+	/////////////////////////////////////////////////////////////////////////////////////////jendela samping kanan
+	glPushMatrix();
+		glTranslatef(48.5f,0.0f,0.0f);
+		balok(1.5f,10.0f,1.0f,-25.0f,20.0f,0.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,-5.0f,0.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,20.0f,-19.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,10.0f,1.0f,-25.0f,-5.0f,-19.5f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+		///////////////////////////////////////////
+		balok(1.5f,1.0f,10.0f,-25.0f,24.5f,5.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,-0.5f,5.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,24.5f,-15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+
+		balok(1.5f,1.0f,10.0f,-25.0f,-0.5f,-15.0f,	    cd[1][4], //depan
+														cd[1][4], //belakang
+														cd[1][4], //kiri
+														cd[1][4], //kanan
+														cd[1][4], //atas
+														cd[1][4]); //bawah
+		///////////////////////////////////////////////////////////////////////
+		balok(0.5f,10.0f,10.0f,-24.5f,-5.0f,-15.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,-5.0f,5.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,20.0f,-15.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+
+		balok(0.5f,10.0f,10.0f,-24.5f,20.0f,5.0f,	    cd[5][1], //depan
+														cd[5][1], //belakang
+														cd[5][1], //kiri
+														cd[5][1], //kanan
+														cd[5][1], //atas
+														cd[5][1]); //bawah
+	glPopMatrix();
+	};
+};
+
+void pintukiri(void){
+	if(pintu==1){
+	glPushMatrix();
+		balok(4.8f,20.0f,0.5f,-5.0f,-15.0f,14.5f,	    cd[5][3], //depan
+														cd[5][3], //belakang
+														cd[2][3], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][4]); //bawah
+
+		balok(0.5f,10.0f,0.5f,-1.5f,-10.0f,15.5f,	    cd[1][0], //depan
+														cd[0][1], //belakang
+														cd[0][1], //kiri
+														cd[0][1], //kanan
+														cd[0][1], //atas
+														cd[0][1]); //bawah
+	glPopMatrix();
+	};
+};
+
+void pintukanan(void){
+	if(pintu==1){
+	glPushMatrix();
+	balok(4.8f,20.0f,0.5f,0.2f,-15.0f,14.5f,	    cd[5][3], //depan
+													cd[5][3], //belakang
+													cd[2][3], //kiri
+													cd[2][3], //kanan
+													cd[2][4], //atas
+													cd[2][4]); //bawah
+
+	balok(0.5f,10.0f,0.5f,1.0f,-10.0f,15.5f,	    cd[1][0], //depan
+													cd[0][1], //belakang
+													cd[0][1], //kiri
+													cd[0][1], //kanan
+													cd[0][1], //atas
+													cd[0][1]); //bawah
+	glPopMatrix();
+	};
+};
+
+void rumah(void){
+	int i;
+	int a=12;
+	for(i=0;i<a;i++){
+		float geser = (float) i*4.5f;
+		glPushMatrix(); // atap rumah kanan
+			glRotatef(-38.5f,0.0f,0.0f,1.0f);
+			glTranslatef(-34.25f,43.0f,16.25f-geser);
+			balok(35.0f,2.0f,4.0f,0.0f,0.0f,0.0f,	    cd[2][0], //depan
+															cd[2][1], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+			if (i!=a-1) {
+				balok(35.0f,3.0f,0.5f,0.0f,0.0f,-4.0f,			cd[2][3], cd[2][3], cd[2][3], cd[2][3], cd[2][3], cd[2][3]);
+			};
+			glPushMatrix();
+				glRotatef(-90.0f,0.0f,1.0f,0.0f);
+				glRotatef(-90.0f,1.0f,0.0f,0.0f);	
+				segitiga(2.0f,2.0f,5.0f,2.0f,-2.0f,35.0f,2.0f,	cd[2][4], //depan
+																cd[2][5], //belakang
+																cd[2][0], //kiri
+																cd[2][0], //kanan
+																cd[2][4]); //bawah
+			glPopMatrix();
+		glPopMatrix();
+	};
+
+	for(i=0;i<a;i++){
+		float geser = (float) i*4.5f;
+		glPushMatrix(); // atap rumah kiri
+			glRotatef(218.5f,0.0f,0.0f,1.0f);
+			glRotatef(180.0f,1.0f,0.0f,0.0f);
+			glTranslatef(-34.25f,43.0f,-12.25f+geser);
+			balok(35.0f,2.0f,4.0f,0.0f,0.0f,0.0f,			cd[2][1], //depan
+															cd[2][0], //belakang
+															cd[2][2], //kiri
+															cd[2][3], //kanan
+															cd[2][4], //atas
+															cd[2][5]); //bawah
+		
+			if (i!=a-1) {
+				balok(35.0f,3.0f,0.5f,0.0f,0.0f,0.5f,			cd[2][3], cd[2][3], cd[2][3], cd[2][3], cd[2][3], cd[2][3]);
+			};
+
+			glPushMatrix();
+				glRotatef(-90.0f,0.0f,1.0f,0.0f);
+				glRotatef(-90.0f,1.0f,0.0f,0.0f);	
+				segitiga(2.0f,2.0f,5.0f,2.0f,-2.0f,35.0f,2.0f,	cd[2][4], //depan
+																cd[2][5], //belakang
+																cd[2][0], //kiri
+																cd[2][0], //kanan
+																cd[2][4]); //bawah
+			glPopMatrix();
+		glPopMatrix();
+	};
+	///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+	glPushMatrix(); //alas
+		balok(50.0f,1.5f,50.0f,-25.0f,-15.0f,15.0f,	    cd[2][0], //depan //alas bawah
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][2], //kanan
+														cd[4][4], //atas
+														cd[4][5]); //bawah
+
+		balok(47.0f,2.5f,47.0f,-23.5f,8.25f,13.5f,	    cd[4][0], //depan //alas atas
+														cd[4][1], //belakang
+														cd[4][2], //kiri
+														cd[4][3], //kanan
+														cd[4][4], //atas
+														cd[4][5]); //bawah
+	glPopMatrix();
+	if(tdinding[0]==1){
+	glPushMatrix(); //dinding depan
+		balok(8.0f,50.0f,1.5f,-25.0f,-15.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+		
+		balok(5.0f,50.0f,1.5f,-10.0f,-15.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][3], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+
+		balok(10.0f,30.0f,1.5f,-5.0f,5.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][3], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(5.0f,50.0f,1.5f,5.0f,-15.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][3], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(8.0f,50.0f,1.5f,17.0f,-15.0f,15.0f,	    cd[2][0], //depan
+														cd[2][1], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+	glPopMatrix();
+	};
+	if(tdinding[2]==1){
+	glPushMatrix(); //dinding belakang
+		balok(50.0f,10.0f,1.5f,-25.0f,-15.0f,-33.5f,	cd[5][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(50.0f,15.0f,1.5f,-25.0f,5.0f,-33.5f,	cd[5][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+		balok(50.0f,5.0f,1.5f,-25.0f,30.0f,-33.5f,	cd[5][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		
+	glPopMatrix();
+	};
+	if(tdinding[3]==1){
+	glPushMatrix(); //dinding kiri
+		balok(1.5f,10.0f,50.0f,-25.0f,-15.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,15.0f,50.0f,-25.0f,5.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,5.0f,50.0f,-25.0f,30.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,40.0f,10.0f,-25.0f,-5.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,40.0f,10.0f,-25.0f,-5.0f,-5.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,40.0f,10.0f,-25.0f,-5.0f,-25.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][2], //kiri
+														cd[2][3], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+	glPopMatrix();
+	};
+
+	if(tdinding[1]==1){
+	glPushMatrix(); //dinding kanan
+		balok(1.5f,10.0f,50.0f,23.5f,-15.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+		balok(1.5f,15.0f,50.0f,23.5f,5.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+		balok(1.5f,5.0f,50.0f,23.5f,30.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,50.0f,10.0f,23.5f,-15.0f,15.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,50.0f,10.0f,23.5f,-15.0f,-5.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+
+		balok(1.5f,50.0f,10.0f,23.5f,-15.0f,-25.0f,    cd[2][0], //depan
+														cd[5][2], //belakang
+														cd[2][3], //kiri
+														cd[2][2], //kanan
+														cd[2][4], //atas
+														cd[2][5]); //bawah
+	glPopMatrix();
+	};
+	
+
+};
+//5 objek furniture
+float kursipos[3] = {-0.95f,-7.0f,-13.0f};
+float kursirot[3] = {0.0f,0.0f,0.0f}; //x y z
+float kursiskala = 0.0f;
+
+float mejapos[3] = {-5.0f,-7.0f,-19.0f};
+float mejarot[3] = {0.0f,0.0f,0.0f}; //x y z
+float mejaskala = 0.0f;
+
+float lemaripos[3] = {20.0f,-14.0f,-30.0f};
+float lemarirot[3] = {0.0f,0.0f,0.0f}; //x y z
+float lemariskala = 0.0f;
+
+float emberpos[3] = {19.0f,-14.0f,0.0f};
+float emberrot[3] = {0.0f,0.0f,0.0f}; //x y z
+float emberskala = 0.0f;
+
+float kasurpos[3] = {7.0f,-14.0f,12.0f};
+float kasurrot[3] = {0.0f,0.0f,0.0f}; //x y z
+float kasurskala = 0.0f;
+
+void ember(void){
+	float w[8][4] = {
+						{cl(255),cl(255),cl(255),1.0f},
+						{cl(209),cl(209),cl(209),1.0f},
+						{cl(199),cl(199),cl(199),1.0f},
+						{cl(151),cl(115),cl(4),1.0f},
+						{cl(124),cl(95),cl(3),1.0f},
+						{cl(98),cl(74),cl(2),1.0f},
+						{cl(255),cl(0),cl(0),1.0f},
+						{cl(90),cl(62),cl(255),0.6f}
+					};
+	glPushMatrix();
+		glRotatef(emberrot[0],1.0f,0.0f,0.0f);
+		glRotatef(emberrot[1],0.0f,1.0f,0.0f);
+		glRotatef(emberrot[2],0.0f,0.0f,1.0f);
+		glScalef(1.0f+emberskala,1.0f+emberskala,1.0f+emberskala);
+		glTranslatef(emberpos[0],emberpos[1],emberpos[2]);
+
+		balok(0.5f,3.0f,3.0f,0.0f,0.0f,0.0f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+		balok(0.5f,3.0f,3.0f,2.5f,0.0f,0.0f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+
+		balok(3.0f,3.0f,0.5f,0.0f,0.0f,-0.0f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+		balok(3.0f,3.0f,0.5f,0.0f,0.0f,-2.5f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+		balok(3.0f,0.5f,3.0f,0.0f,0.0f,0.0f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+
+		balok(2.0f,2.5f,2.0f,0.5f,0.5f,-0.5f,	    w[7], //depan
+														w[7], //belakang
+														w[7], //kiri
+														w[7], //kanan
+														w[7], //atas
+														w[7]); //bawah
+	glPopMatrix();
+
+};
+
+void kasur(void){
+	float w[7][4] = {
+						{cl(255),cl(255),cl(255),1.0f},
+						{cl(209),cl(209),cl(209),1.0f},
+						{cl(199),cl(199),cl(199),1.0f},
+						{cl(151),cl(115),cl(4),1.0f},
+						{cl(124),cl(95),cl(3),1.0f},
+						{cl(98),cl(74),cl(2),1.0f},
+						{cl(255),cl(0),cl(0),1.0f}
+					};
+	glPushMatrix();
+		glRotatef(kasurrot[0],1.0f,0.0f,0.0f);
+		glRotatef(kasurrot[1],0.0f,1.0f,0.0f);
+		glRotatef(kasurrot[2],0.0f,0.0f,1.0f);
+		glScalef(1.0f+kasurskala,1.0f+kasurskala,1.0f+kasurskala);
+		glTranslatef(kasurpos[0],kasurpos[1],kasurpos[2]);
+
+		balok(16.0f,5.0f,10.0f,0.0f,0.0f,0.0f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+		balok(16.0f,1.0f,10.0f,0.0f,5.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+		balok(3.0f,1.0f,10.0f,13.0f,6.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+	glPopMatrix();
+};
+void lemari(void){
+	float w[7][4] = {
+						{cl(107),cl(131),cl(130),1.0f},
+						{cl(67),cl(82),cl(81),1.0f},
+						{cl(49),cl(60),cl(58),1.0f},
+						{cl(151),cl(115),cl(4),1.0f},
+						{cl(124),cl(95),cl(3),1.0f},
+						{cl(98),cl(74),cl(2),1.0f},
+						{cl(255),cl(0),cl(0),1.0f}
+					};
+	glPushMatrix();
+		glRotatef(lemarirot[0],1.0f,0.0f,0.0f);
+		glRotatef(lemarirot[1],0.0f,1.0f,0.0f);
+		glRotatef(lemarirot[2],0.0f,0.0f,1.0f);
+		glScalef(1.0f+lemariskala,1.0f+lemariskala,1.0f+lemariskala);
+		glTranslatef(lemaripos[0],lemaripos[1],lemaripos[2]);
+
+		balok(3.0f,10.0f,3.0f,0.0f,0.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+		balok(2.0f,3.5f,3.0f,0.5f,5.5f,0.5f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+
+		balok(0.3f,1.5f,0.3f,0.7f,6.5f,0.8f,	    w[6], //depan
+														w[6], //belakang
+														w[6], //kiri
+														w[6], //kanan
+														w[6], //atas
+														w[6]); //bawah
+
+		balok(2.0f,3.5f,3.0f,0.5f,1.0f,0.5f,	    w[3], //depan
+														w[3], //belakang
+														w[4], //kiri
+														w[4], //kanan
+														w[5], //atas
+														w[5]); //bawah
+
+		balok(0.3f,1.5f,0.3f,0.7f,2.0f,0.8f,	    w[6], //depan
+														w[6], //belakang
+														w[6], //kiri
+														w[6], //kanan
+														w[6], //atas
+														w[6]); //bawah
+	glPopMatrix();
+};
+
+void meja(void){
+	float w[3][4] = {
+						{cl(107),cl(131),cl(130),1.0f},
+						{cl(67),cl(82),cl(81),1.0f},
+						{cl(49),cl(60),cl(58),1.0f}
+					};
+	glPushMatrix();
+		glRotatef(mejarot[0],1.0f,0.0f,0.0f);
+		glRotatef(mejarot[1],0.0f,1.0f,0.0f);
+		glRotatef(mejarot[2],0.0f,0.0f,1.0f);
+		glScalef(1.0f+mejaskala,1.0f+mejaskala,1.0f+mejaskala);
+		glTranslatef(mejapos[0],mejapos[1],mejapos[2]);
+		balok(10.0f,1.0f,5.0f,0.0f,0.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+		balok(1.0f,7.0f,1.0f,0.0f,-7.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+
+		balok(1.0f,7.0f,1.0f,9.0f,-7.0f,0.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+
+		balok(1.0f,7.0f,1.0f,0.0f,-7.0f,-4.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+
+		balok(1.0f,7.0f,1.0f,9.0f,-7.0f,-4.0f,	    w[0], //depan
+														w[0], //belakang
+														w[1], //kiri
+														w[1], //kanan
+														w[2], //atas
+														w[2]); //bawah
+	glPopMatrix();
+};
+
+void kursi(float x,float y, float z){
+	glPushMatrix();
+		glRotatef(kursirot[0],1.0f,0.0f,0.0f);
+		glRotatef(kursirot[1],0.0f,1.0f,0.0f);
+		glRotatef(kursirot[2],0.0f,0.0f,1.0f);
+		glScalef(1.0f+kursiskala,1.0f+kursiskala,1.0f+kursiskala);
+		glTranslatef(kursipos[0],kursipos[1],kursipos[2]);
+		balok(1.0f,4.0f,1.0f,-25.0f+25.0f+kursipos[0],20.0f-20.0f+kursipos[1],20.0f-20.0f+kursipos[2],cd[1][0], //kiri
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+
+		balok(1.0f,4.0f,1.0f,-22.0f+25.0f+kursipos[0],20.0f-20.0f+kursipos[1],20.0f-20.0f+kursipos[2],cd[1][0], //kanan
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+
+		balok(1.0f,4.0f,1.0f,-25.0f+25.0f+kursipos[0],20.0f-20.0f+kursipos[1],17.0f-20.0f+kursipos[2],cd[1][0], //belkg kiri
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+
+		balok(1.0f,4.0f,1.0f,-22.0f+25.0f+kursipos[0],20.0f-20.0f+kursipos[1],17.0f-20.0f+kursipos[2],cd[1][0], //belkg kanan
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+
+		balok(4.0f,0.5f,4.0f,-25.0f+25.0f+kursipos[0],24.0f-20.0f+kursipos[1],20.0f-20.0f+kursipos[2],cd[1][0], //taplak
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+		balok(4.0f,5.0f,1.0f,-25.0f+25.0f+kursipos[0],23.50f-20.0f+kursipos[1],17.0f-20.0f+kursipos[2],cd[1][0], //sandaran
+	   											cd[1][1],
+												cd[1][2],
+												cd[1][3],
+												cd[1][4],
+												cd[1][5]);
+	glPopMatrix();
+
+};
+
+
+////////////////////////////////
+
+void tampil(void){
+	if (is_depth){
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}else{
+		glClear(GL_COLOR_BUFFER_BIT);
+	};
+	//furnitur
+	kursi(0,0,0);	//1
+	meja();			//2
+	lemari();		//3
+	ember();		//4
+	kasur();		//5
+	/////////////////////////////
+	tanah();
+	rumah();
+	pintukiri();
+	pintukanan();
+	pagar();
+	jendelarumah();
+	kacasegitiga();
+	
+	
+
+	
+	glutSwapBuffers();
+
+};
+
+int kontrolobjek = 1;
+void keyboard(unsigned char key, int x,int y){
+	/*
+	kontrol objek
+	tombol 1 = semua objek
+	tombol 2 = kontrol furnitur kursi
+	tombol 3 = kontrol furnitur meja
+	tombol 4 = kontrol furnitur lemari
+	tombol 5 = kontrol furnitur ember
+	tombol 6 = kontrol furnitur kasur
+	tombol WASDQEwasdqe = untuk melakukan rotasi terhadap objek yang dipilih (pilih tombol 1-6 dahulu untuk konfigurasi objek yang dimaksud)
+	tombol RFrf = untuk melakukan zoom in / zoom out / memperbesar objek / memperkecil objek yang dipilih (pilih tombol 1-6 dahulu untuk konfigurasi objek yang dimaksud)
+	tombol ijklIJKL = untuk melakukan translasi terhadap objek yang dipilih (pilih tombol 1-6 dahulu untuk konfigurasi objek yang dimaksud)
+	tombol zxcv = untuk menampilkan dan menyembunyikan pagar
+	tombol ZXCV = untuk menampilkan dan menyembunyikan dinding
+	tombol Bb   = untuk menampilkan dan menyembunyikan pintu
+	*/
+	switch(key){
+	case '`'://keyboard ` untuk exit
+		system("EXIT");
+		exit(EXIT_SUCCESS);
+		break;
+	case 'q'://q kecil untuk merotasi objek yang dipilih ke arah putar kiri (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'Q'://q besar untuk merotasi objek yang dipilih ke arah putar kiri (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(1.0f,0.0f,0.0f,1.0f);
+		}else if(kontrolobjek==2){
+			kursirot[2]= kursirot[2]-1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[2]= mejarot[2]-1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[2]= lemarirot[2]-1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[2]= emberrot[2]-1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[2]= kasurrot[2]-1.0f;
+		};
+		break;
+	case 'e'://e kecil untuk merotasi objek yang dipilih ke arah putar kanan (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'E'://e besar untuk merotasi objek yang dipilih ke arah putar kanan (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(-1.0f,0.0f,0.0f,1.0f);
+		}else if(kontrolobjek==2){
+			kursirot[2]= kursirot[2]+1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[2]= mejarot[2]+1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[2]= lemarirot[2]+1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[2]= emberrot[2]+1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[2]= kasurrot[2]+1.0f;
+		};
+		break;
+	case 'w'://w kecil untuk merotasi objek yang dipilih ke arah atas (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'W'://w besar untuk merotasi objek yang dipilih ke arah atas (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(-5.0f,1.0f,0.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursirot[0]= kursirot[0]+1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[0]= mejarot[0]+1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[0]= lemarirot[0]+1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[0]= emberrot[0]+1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[0]= kasurrot[0]+1.0f;
+		};
+		break;
+	case 'd'://d kecil untuk merotasi objek yang dipilih ke arah kanan (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'D'://d besar untuk merotasi objek yang dipilih ke arah kanan (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(5.0f,0.0f,1.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursirot[1]= kursirot[1]-1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[1]= mejarot[1]-1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[1]= lemarirot[1]-1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[1]= emberrot[1]-1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[1]= kasurrot[1]-1.0f;
+		};
+		break;
+	case 's'://s kecil untuk merotasi objek yang dipilih ke arah bawah (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'S'://s besar untuk merotasi objek yang dipilih ke arah bawah (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(5.0f,1.0f,0.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursirot[0]= kursirot[0]-1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[0]= mejarot[0]-1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[0]= lemarirot[0]-1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[0]= emberrot[0]-1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[0]= kasurrot[0]-1.0f;
+		};
+		break;
+	case 'a'://a kecil untuk merotasi objek yang dipilih ke arah kiri (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'A'://a besar untuk merotasi objek yang dipilih ke arah kiri (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glRotatef(-5.0f,0.0f,1.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursirot[1]= kursirot[1]+1.0f;
+		}else if(kontrolobjek==3){
+			mejarot[1]= mejarot[1]+1.0f;
+		}else if(kontrolobjek==4){
+			lemarirot[1]= lemarirot[1]+1.0f;
+		}else if(kontrolobjek==5){
+			emberrot[1]= emberrot[1]+1.0f;
+		}else if(kontrolobjek==6){
+			kasurrot[1]= kasurrot[1]+1.0f;
+		};
+		break;
+	case 'r'://r kecil memperbesar/zoom in objek dengan metode scale (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'R'://r besar memperbesar/zoom in objek dengan metode scale (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glScalef(1.1f,1.1f,1.1f);
+		}else if(kontrolobjek==2){
+			kursiskala=kursiskala + 0.1f;
+		}else if(kontrolobjek==3){
+			mejaskala=mejaskala + 0.1f;
+		}else if(kontrolobjek==4){
+			lemariskala=lemariskala + 0.1f;
+		}else if(kontrolobjek==5){
+			emberskala=emberskala + 0.1f;
+		}else if(kontrolobjek==6){
+			kasurskala=kasurskala + 0.1f;
+		};
+		break;
+	case 'f'://f kecil memperkecil / zoom out objek dengan metode scale (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+	case 'F'://f besar memperkecil / zoom out objek dengan metode scale (perlu pilih tombol keyboard 1 - 6 untuk memilih objek yang akan di konfigurasi)
+		if(kontrolobjek==1){
+			glScalef(0.9f,0.9f,0.9f);
+		}else if(kontrolobjek==2){
+			kursiskala=kursiskala - 0.1f;
+		}else if(kontrolobjek==3){
+			mejaskala=mejaskala - 0.1f;
+		}else if(kontrolobjek==4){
+			lemariskala=lemariskala - 0.1f;
+		}else if(kontrolobjek==5){
+			emberskala=emberskala - 0.1f;
+		}else if(kontrolobjek==6){
+			kasurskala=kasurskala - 0.1f;
+		};
+		break;
+	case 'i'://i kecil melakukan translasi semua objek ke atas atau jika dipilih tombol objek furnitur akan translasi ke belakang
+	case 'I'://I besar melakukan translasi semua objek ke atas atau jika dipilih tombol objek furnitur akan translasi ke belakang
+		if(kontrolobjek==1){
+			glTranslatef(0.0f,1.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursipos[2]=kursipos[2]-1;
+		}else if(kontrolobjek==3){
+			mejapos[2]=mejapos[2]-1;
+		}else if(kontrolobjek==4){
+			lemaripos[2]=lemaripos[2]-1;
+		}else if(kontrolobjek==5){
+			emberpos[2]=emberpos[2]-1;
+		}else if(kontrolobjek==6){
+			kasurpos[2]=kasurpos[2]-1;
+		};
+		
+		break;
+	case 'k'://k kecil melakukan translasi semua objek ke bawah atau jika dipilih tombol objek furnitur akan translasi ke depan
+	case 'K'://k besar melakukan translasi semua objek ke bawah atau jika dipilih tombol objek furnitur akan translasi ke depan
+		if(kontrolobjek==1){
+			glTranslatef(0.0f,-1.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursipos[2]=kursipos[2]+1;
+		}else if(kontrolobjek==3){
+			mejapos[2]=mejapos[2]+1;
+		}else if(kontrolobjek==4){
+			lemaripos[2]=lemaripos[2]+1;
+		}else if(kontrolobjek==5){
+			emberpos[2]=emberpos[2]+1;
+		}else if(kontrolobjek==6){
+			kasurpos[2]=kasurpos[2]+1;
+		};
+		break;
+	case 'j': //j kecil melakukan translasi objek ke kiri
+	case 'J': //j besar melakukan translasi objek ke kiri
+		if(kontrolobjek==1){
+			glTranslatef(-1.0f,0.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursipos[0]=kursipos[0]-1;
+		}else if(kontrolobjek==3){
+			mejapos[0]=mejapos[0]-1;
+		}else if(kontrolobjek==4){
+			lemaripos[0]=lemaripos[0]-1;
+		}else if(kontrolobjek==5){
+			emberpos[0]=emberpos[0]-1;
+		}else if(kontrolobjek==6){
+			kasurpos[0]=kasurpos[0]-1;
+		};
+		break;
+	case 'l'://l kecil melakukan translasi objek ke kanan
+	case 'L'://l besar melakukan translasi objek ke kanan
+		if(kontrolobjek==1){
+			glTranslatef(1.0f,0.0f,0.0f);
+		}else if(kontrolobjek==2){
+			kursipos[0]=kursipos[0]+1;
+		}else if(kontrolobjek==3){
+			mejapos[0]=mejapos[0]+1;
+		}else if(kontrolobjek==4){
+			lemaripos[0]=lemaripos[0]+1;
+		}else if(kontrolobjek==5){
+			emberpos[0]=emberpos[0]+1;
+		}else if(kontrolobjek==6){
+			kasurpos[0]=kasurpos[0]+1;
+		};
+		break;
+	case 'u'://u kecil melakukan translasi semua objek ke belakang atau jika dipilih tombol objek furnitur akan translasi ke bawah
+	case 'U'://u besar melakukan translasi semua objek ke belakang atau jika dipilih tombol objek furnitur akan translasi ke bawah
+		if(kontrolobjek==1){
+			glTranslatef(0.0f,0.0f,-1.0f);
+		}else if(kontrolobjek==2){
+			kursipos[1]=kursipos[1]-1;
+		}else if(kontrolobjek==3){
+			mejapos[1]=mejapos[1]-1;
+		}else if(kontrolobjek==4){
+			lemaripos[1]=lemaripos[1]-1;
+		}else if(kontrolobjek==5){
+			emberpos[1]=emberpos[1]-1;
+		}else if(kontrolobjek==6){
+			kasurpos[1]=kasurpos[1]-1;
+		};
+		break;
+	case 'o'://o kecil melakukan translasi semua objek ke depan atau jika dipilih tombol objek furnitur akan translasi ke atas
+	case 'O'://o besar melakukan translasi semua objek ke depan atau jika dipilih tombol objek furnitur akan translasi ke atas
+		if(kontrolobjek==1){
+			glTranslatef(0.0f,0.0f,1.0f);
+		}else if(kontrolobjek==2){
+			kursipos[1]=kursipos[1]+1;
+		}else if(kontrolobjek==3){
+			mejapos[1]=mejapos[1]+1;
+		}else if(kontrolobjek==4){
+			lemaripos[1]=lemaripos[1]+1;
+		}else if(kontrolobjek==5){
+			emberpos[1]=emberpos[1]+1;
+		}else if(kontrolobjek==6){
+			kasurpos[1]=kasurpos[1]+1;
+		};
+		break;
+	case '1'://memilih semua objek untuk siap di kontrol (rotasi , translasi , skala)
+		kontrolobjek=1;
+		cout << "TERPILIH SEMUA OBJEK"<<endl;
+		break;
+	case '2'://memilih objek kursi untuk siap di kontrol (rotasi, translasi , skala)
+		kontrolobjek=2;
+		cout << "TERPILIH KURSI"<<endl;
+		break;
+	case '3'://memilih objek kursi untuk siap di kontrol (rotasi, translasi , skala)
+		kontrolobjek=3;
+		cout << "TERPILIH MEJA"<<endl;
+		break;
+	case '4'://memilih objek kursi untuk siap di kontrol (rotasi, translasi , skala)
+		kontrolobjek=4;
+		cout << "TERPILIH LEMARI"<<endl;
+		break;
+	case '5'://memilih objek kursi untuk siap di kontrol (rotasi, translasi , skala)
+		kontrolobjek=5;
+		cout << "TERPILIH EMBER"<<endl;
+		break;
+	case '6'://memilih objek kursi untuk siap di kontrol (rotasi, translasi , skala)
+		kontrolobjek=6;
+		cout << "TERPILIH KASUR"<<endl;
+		break;
+	case 'z': //z kecil perlihatkan/sembunyikan pagar depan (toggle)
+		if(tpagar[0]==1){
+			tpagar[0]=0;
+		}else{
+			tpagar[0]=1;
+		};
+		break;
+	case 'x': //x kecil perlihatkan/sembunyikan pagar samping kanan (toggle)
+		if(tpagar[1]==1){
+			tpagar[1]=0;
+		}else{
+			tpagar[1]=1;
+		};
+		break;
+	case 'c': //c kecil perlihatkan/sembunyikan pagar belakang (toggle)
+		if(tpagar[2]==1){
+			tpagar[2]=0;
+		}else{
+			tpagar[2]=1;
+		};
+		break;
+	case 'v': //v kecil perlihatkan/sembunyikan pagar samping kiri (toggle)
+		if(tpagar[3]==1){
+			tpagar[3]=0;
+		}else{
+			tpagar[3]=1;
+		};
+		break;
+	case 'Z': //z besar perlihatkan/sembunyikan dinding rumah depan (toggle)
+		if(tdinding[0]==1){
+			tdinding[0]=0;
+		}else{
+			tdinding[0]=1;
+		};
+		break;
+	case 'X': //x besar perlihatkan/sembunyikan dinding rumah kanan (toggle)
+		if(tdinding[1]==1){
+			tdinding[1]=0;
+		}else{
+			tdinding[1]=1;
+		};
+		break;
+	case 'C'://c besar perlihatkan/sembunyikan dinding rumah belakang (toggle)
+		if(tdinding[2]==1){
+			tdinding[2]=0;
+		}else{
+			tdinding[2]=1;
+		};
+		break;
+	case 'V'://v besar perlihatkan/sembunyikan dinding rumah kiri (toggle)
+		if(tdinding[3]==1){
+			tdinding[3]=0;
+		}else{
+			tdinding[3]=1;
+		};
+		break;
+	case 'b'://b kecil perlihatkan/sembunyikan pintu (toggle)
+	case 'B'://b besar perlihatkan/sembunyikan pintu (toggle)
+		if(pintu==1){
+			pintu=0;
+		}else{
+			pintu=1;
+		};
+		break;
+	};
+	tampil();
+};
+void ukuran(int lebar,int tinggi){
+	if (tinggi == 0){
+		tinggi = 1;
+	};
+	cout << "lebar = "<<lebar << ", tinggi = " << tinggi<<endl;
+	cout << "==================================================="<<endl;
+	cout << "TERPILIH SEMUA OBJEK"<<endl;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluPerspective(50.0, lebar / tinggi, 5.0, 500.0);
+	glTranslatef(0.0f, -5.0f, -150.0f);
+	glMatrixMode(GL_MODELVIEW);
+	
+};
+
+int vektorrotasi[3] = {0,0,0}; // arah gerakan ketika mouse di hold down dan di gerakan
+float lokasixyz[3] = {0.0f,0.0f,0.0f}; // lokasi x , y , z
+int lock = 0;
+void mouse(int button, int state, int x, int y){
+	if(button == GLUT_LEFT_BUTTON&& state == GLUT_DOWN){
+		mousedown=true;
+		xdiff=x-yrot;
+		ydiff=-y+xrot;
+	}else{
+		mousedown = false;
+	};
+
+	if(button == GLUT_LEFT && state==GLUT_UP){
+		vektorrotasi[0] = 0;
+		vektorrotasi[1] = 0;
+		vektorrotasi[2] = 0;
+		lock = 0;
+	};
+
+	glutPostRedisplay();
+}
+float fx,fy;
+void mousemotion(int x, int y){
+	
+
+	if (mousedown){
+		if(lokasixyz[3]==360.0f||lokasixyz[3]==-360.0f){
+			lokasixyz[0]=0.0f;
+		};
+
+		if(lokasixyz[1]==360.0f||lokasixyz[1]==-360.0f){
+			lokasixyz[1]=0.0f;
+		};
+
+		if(lokasixyz[0]==360.0f||lokasixyz[0]==-360.0f){
+			lokasixyz[0]=0.0f;
+		};
+
+		yrot=x-xdiff;
+		xrot=y+ydiff;
+		
+		if(lock ==0){
+			
+			lock=1;
+		};
+
+		
+		if(fy<y){
+			glRotatef(1.0f,1.0f,0.0f,0.0f);
+			lokasixyz[1] += 1.0f;
+		}else if(fy>y){
+			glRotatef(-1.0f,1.0f,0.0f,0.0f);
+			lokasixyz[1] -= 1.0f;
+		};
+
+		if(fx<x){
+			glRotatef(1.0f,0.0f,1.0f,0.0f);
+			lokasixyz[0] += 1.0f;
+		}else if(fx>x){
+			glRotatef(-1.0f,0.0f,1.0f,0.0f);
+			lokasixyz[0] -= 1.0f;
+		};
+		tampil();
+		
+		glutPostRedisplay();
+		fx = x;
+		fy = y;
+	}
+}
+
+void waktuloop(int) {
+	//glPushMatrix();
+	
+	
+	//glPopMatrix();
+	glutPostRedisplay(); //redisplay pada glutDisplayFunc(tampil);
+	glutTimerFunc(600/60, waktuloop, 0);
+
+};
+int main (int argc, char **argv){
+	glutInit(&argc, argv);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(250, 80);
+	glutCreateWindow("Felix Vicky Lugas Dewangga - 672018159");
+	init();
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+	glutDisplayFunc(tampil);
+	glutKeyboardFunc(keyboard);
+	glutReshapeFunc(ukuran);
+	glutMouseFunc(mouse);
+	glutMotionFunc(mousemotion);
+	glutTimerFunc(0,waktuloop,0);
+	glutMainLoop();
+return 0;
+};
